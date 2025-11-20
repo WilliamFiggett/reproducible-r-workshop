@@ -147,6 +147,25 @@ boxplot(log2(1+filteredCountsMatUQ), las=2, cex.axis=0.5, cex=0.5,
 # Output: table of prepared gene expression data (counts x samples)
 write.csv(filteredCountsMatUQ, file = paste0(save_dir,format(Sys.time(), "%Y-%m-%dT%H-%M-%S"), "_","filteredCountsMatUQ.csv"))
 
+# Function to plot the depth of data in each sample, factored by sample or group
+plot_depth <- function(counts_matrix, groups = NULL) {
+  if(is.null(groups)) {
+    groups <- factor(rep("all_samples", ncol(counts_matrix)))
+  }
+  depth_data <- data.frame("depth" = colSums(counts_matrix)/10^6, group = groups)
+  
+  ggplot(depth_data, aes(x = group, y = depth)) +
+    geom_boxplot() +
+    geom_jitter(width = 0.1, height = 0, alpha = 0.7, colour = "blue") +
+    ylab("Counts (millions)") +
+    xlab("Sample Group") +
+    theme_light()
+}
+
+# Use the plot_depth function to check the data collected in each sample or group
+plot_depth(filteredCountsMat, groups = factor(airway$dex))
+plot_depth(filteredCountsMat)
+
 # Exploratory plots to view the amount of data collected in each sample:
 # Plot the depth of sequencing per sample
 plot(y = colSums(filteredCountsMat)/10^6, ylab="Counts (millions)",
